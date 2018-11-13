@@ -1,0 +1,60 @@
+int potPin = A9;
+int potPin2 = A7;
+int potPin3 = A6;
+int potPin4 = A5;
+int potArray[4] = {potPin, potPin2, potPin3, potPin4};
+int potPin = A8;
+
+int potVal = 0;
+int lastPotVal = 0;
+int ccVal = 0;
+int ccNumber = 1;
+
+int activate = 3;
+
+boolean button1State = LOW;
+boolean lastButtonState = LOW;
+boolean on = false;
+
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(potPin, INPUT);
+  pinMode(potArray[4], INPUT);
+  pinMode(activate, INPUT);
+
+
+}
+
+
+void loop() {
+  parameterControl();
+  activateControl();
+}
+
+void parameterControl () {
+  lastPotVal = potVal;
+  //  potVal = analogRead(potArray[4]);
+  potVal = analogRead(potPin);
+  if (potVal != lastPotVal) {
+    ccVal = map(potVal, 0, 1023, 0, 127);
+    usbMIDI.sendControlChange(ccNumber, ccVal, 1);
+    Serial.println(ccVal);
+  }
+}
+
+void activateControl () {
+  lastButtonState = button1State;
+  button1State = digitalRead(activate);
+
+  if (button1State == HIGH && lastButtonState == LOW) {
+    if (on == false) {
+      on = true;
+      usbMIDI.sendNoteOn (1, 127, 1);
+    } else if (on == true) {
+      on = false;
+      usbMIDI.sendControlChange (1, 0, 1);
+
+    }
+  }
+}
