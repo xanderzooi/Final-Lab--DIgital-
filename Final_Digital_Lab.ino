@@ -7,8 +7,25 @@ int potArray[4] = {potPin, potPin2, potPin3, potPin4};
 
 int potValArray[4] = {0, 0, 0, 0};
 int lastPotValArray[4] = {0, 0, 0, 0};
-int ccValArray[4] = {0, 0, 0, 0};
-int ccNumberArray[4] = {0, 0, 0, 0};
+int ccVal[4] = {0, 0, 0, 0};
+int ccNumber[4] = {1, 2, 3, 4};
+
+
+int leftButton = 12;
+boolean leftbuttonState = (LOW);
+boolean lastleftbuttonState = (LOW);
+int rightButton = 13;
+boolean rightbuttonState = (LOW);
+boolean lastrightbuttonState = (LOW);
+
+unsigned long directionalButtonChange;
+
+
+int toggleButton = 14;
+boolean togglebuttonState = (LOW);
+boolean lasttogglebuttonState = (LOW);
+
+unsigned long lastCCtime[4] = {0, 0, 0, 0};
 
 int buttonArray[4] = {8, 9, 10, 11};
 
@@ -23,6 +40,8 @@ void setup() {
   for (int i = 0; i < 4; i ++) {
     pinMode(potArray[i], INPUT);
     pinMode(buttonArray[i], INPUT);
+    pinMode(leftButton, INPUT);
+    pinMode(rightButton, INPUT);
   }
   Serial.begin(9600);
 }
@@ -30,24 +49,73 @@ void setup() {
 
 void loop() {
   usbMIDI.read();
-  parameterControl();
+  potCheck();
   activateControl();
 }
 
+void potCheck() {
+//  leftbuttonState = lastleftbuttonState;
+//  leftbuttonState = digitalRead(leftButton);
+//  rightbuttonState = lastrightbuttonState;
+//  rightbuttonState = digitalRead(rightButton);
 
-void parameterControl () {
+
   for (int i = 0; i < 4; i ++) {
-    if (potValArray[i] != lastPotValArray[i]) {
-      lastPotValArray[i] = potValArray[i];
-      potValArray[i] = analogRead(potArray[i]);
-      ccValArray[i] = map(potValArray[i], 0, 1023, 0, 127);
-      usbMIDI.sendControlChange(ccNumberArray[i], ccValArray[i], 1);
-      Serial.println(ccValArray[i]);
-    }
+
+//     if (leftbuttonState == HIGH) {
+//     i = (i + 4);
+//    } 
+//  else if (rightbuttonState == HIGH) {
+//      i = (i - 4); }
+//      if (i < 0) {
+//        i = 0;
+//      }
+//      if ( i > 120); {
+//       i = 120;
+//      }
+
+      parameterControl (i);
+     }
+  
+  
+
+  }
+  
+ 
+
+//void toggleEffects() {
+//  leftbuttonState = leftbuttonState;
+//  leftbuttonState = digitalRead(leftButton);
+//  
+//  
+// {
+//    
+//  }
+//}
+
+
+
+void parameterControl (int ccNum) {
+
+
+  //Serial.println(ccNum);
+
+
+  lastPotValArray[ccNum] = potValArray[ccNum];
+  potValArray[ccNum] = analogRead(potArray[ccNum]) / 8;
+  if ((potValArray[ccNum] != lastPotValArray[ccNum]) && millis() > lastCCtime[ccNum]) {
+    lastCCtime[ccNum] = millis();
+    ccVal[ccNum] = map(potValArray[ccNum], 0, 127, 0, 127);
+    usbMIDI.sendControlChange(ccNumber[ccNum], ccVal[ccNum], 1);
+    Serial.println(potValArray[ccNum]);
+
+    Serial.print(ccNum);
+    Serial.print(", ");
+    Serial.println(ccVal[ccNum]);
   }
 }
 
-void activateControl () {
+void activateControl() {
 
   lastButtonStateArray[0] = buttonStateArray[0];
   buttonStateArray[0] = digitalRead(buttonArray[0]);
