@@ -91,8 +91,7 @@ void parameterControl (int ccNum) {
   lastPotValArray[ccNum] = potValArray[ccNum];
   potValArray[ccNum] = analogRead(potArray[ccNum]) / 8;
 
-  if ((potValArray[ccNum] != lastPotValArray[ccNum]) && millis() > lastCCtime[ccNum]) {
-    lastCCtime[ccNum] = millis();
+  if ((potValArray[ccNum] != lastPotValArray[ccNum])) {
     ccVal[ccNum] = map(potValArray[ccNum], 0, 127, 0, 127);
 
     usbMIDI.sendControlChange(ccNumber[ccNum] + (ccAdder), ccVal[ccNum], 1);
